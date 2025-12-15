@@ -277,6 +277,13 @@ def main():
     # Create evaluation environment
     env = create_sepsis_env(use_action_masking=True)
     
+    # Verify we're using the real ICU-Sepsis environment
+    env_type = type(env.env).__name__
+    if "Mock" in env_type:
+        logger.error("WARNING: Using MOCK environment, not real ICU-Sepsis!")
+        raise RuntimeError("Mock environment detected. Install icu-sepsis package.")
+    logger.info(f"Environment: {env_type} (real ICU-Sepsis)")
+    
     all_results = {}
     
     # Evaluate single checkpoint

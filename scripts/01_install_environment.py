@@ -116,9 +116,10 @@ def verify_installation():
     print("\nTesting ICU-Sepsis environment...")
     try:
         import icu_sepsis
-        import gymnasium as gym
         
-        env = gym.make("Sepsis-v0")
+        # Create environment directly (not via gym.make)
+        base_env = icu_sepsis.ICUSepsisEnv()
+        env = icu_sepsis.FlattenActionWrapper(base_env)
         state, info = env.reset(seed=42)
         
         print(f"  ✓ Environment created")

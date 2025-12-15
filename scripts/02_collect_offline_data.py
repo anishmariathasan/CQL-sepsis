@@ -120,6 +120,18 @@ def main():
         use_action_masking=args.use_action_masking,
         log_episodes=False,
     )
+    
+    # Verify we're using the real ICU-Sepsis environment
+    env_type = type(env.env).__name__
+    if "Mock" in env_type:
+        logger.error("=" * 60)
+        logger.error("WARNING: Using MOCK environment, not real ICU-Sepsis!")
+        logger.error("Install icu-sepsis: pip install icu-sepsis")
+        logger.error("=" * 60)
+        raise RuntimeError("Mock environment detected. Install icu-sepsis package.")
+    else:
+        logger.info(f"  Environment: {env_type} (real ICU-Sepsis)")
+    
     logger.info(f"  State space: {env.n_states} discrete states")
     logger.info(f"  Action space: {env.n_actions} discrete actions")
     

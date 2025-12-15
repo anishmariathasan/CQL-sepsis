@@ -243,6 +243,13 @@ def train_cql(
     logger.info("Creating evaluation environment...")
     eval_env = create_sepsis_env(use_action_masking=True)
     
+    # Verify we're using the real ICU-Sepsis environment
+    env_type = type(eval_env.env).__name__
+    if "Mock" in env_type:
+        logger.error("WARNING: Using MOCK environment, not real ICU-Sepsis!")
+        raise RuntimeError("Mock environment detected. Install icu-sepsis package.")
+    logger.info(f"  Environment: {env_type} (real ICU-Sepsis)")
+    
     # Extract hyperparameters
     algo_config = config["algorithm"]
     train_config = config["training"]
