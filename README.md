@@ -83,11 +83,28 @@ CQL-sepsis/
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.8+ (3.10 recommended)
 - PyTorch 2.0+
 - CUDA (optional, for GPU acceleration)
 
 ### Installation
+
+#### Option 1: Conda (Recommended)
+
+```bash
+# Clone repository
+git clone https://github.com/anishmariathasan/CQL-sepsis.git
+cd CQL-sepsis
+
+# Create conda environment from file
+conda env create -f environment.yml
+conda activate cql-sepsis
+
+# Verify installation
+python scripts/01_install_environment.py
+```
+
+#### Option 2: pip
 
 ```bash
 # Clone repository
@@ -97,9 +114,11 @@ cd CQL-sepsis
 # Install dependencies
 pip install -r requirements.txt
 
-# Install ICU-Sepsis environment and verify setup
+# Verify installation
 python scripts/01_install_environment.py
 ```
+
+Note: `01_install_environment.py` verifies all dependencies are correctly installed and tests the ICU-Sepsis environment.
 
 ### Train CQL
 
