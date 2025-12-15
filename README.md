@@ -138,14 +138,11 @@ To run the complete experimental pipeline (data collection, training, evaluation
 #### macOS / Linux (Bash)
 
 ```bash
-# Make script executable
-chmod +x scripts/reproduce_all.sh
-
 # Full reproduction
-./scripts/reproduce_all.sh
+bash scripts/reproduce_all.sh
 
 # Quick test run
-./scripts/reproduce_all.sh --quick
+bash scripts/reproduce_all.sh --quick
 ```
 
 ## Experiments
