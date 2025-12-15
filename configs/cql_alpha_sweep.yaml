@@ -1,0 +1,35 @@
+# CQL Alpha Sweep Configuration
+# Sweep over conservatism coefficient alpha
+
+# Inherit base configuration
+inherit: "configs/cql_default.yaml"
+
+# Sweep configuration
+sweep:
+  name: "alpha_sensitivity"
+  description: "Sweep over CQL alpha parameter to analyze conservatism trade-off"
+  
+  # Alpha values to sweep
+  alpha_values: [0.0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
+  
+  # Number of seeds per configuration
+  n_seeds: 5
+  seeds: [0, 1, 2, 3, 4]
+
+# Override training for faster sweeps
+training:
+  n_iterations: 50000           # Fewer iterations for sweep
+  eval_frequency: 5000
+  checkpoint_frequency: 10000
+  log_frequency: 500
+
+# Evaluation
+evaluation:
+  n_episodes: 100
+  seeds: [0, 1, 2, 3, 4]
+
+# Output configuration
+output:
+  base_dir: "results/alpha_sweep"
+  save_all_checkpoints: false   # Only save best checkpoint per config
+  save_final_checkpoint: true

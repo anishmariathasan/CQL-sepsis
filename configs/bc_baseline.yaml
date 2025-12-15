@@ -1,0 +1,47 @@
+# Behavior Cloning Baseline Configuration
+
+# Algorithm hyperparameters
+algorithm:
+  name: "bc"
+  learning_rate: 3e-4           # Adam learning rate
+  batch_size: 256               # Batch size for SGD
+  hidden_dim: 256               # Network hidden dimension
+  num_layers: 2                 # Number of hidden layers
+  activation: "relu"            # Activation function
+  weight_decay: 1e-4            # L2 regularization
+
+# Training configuration
+training:
+  n_iterations: 50000           # Total training iterations
+  eval_frequency: 2500          # Evaluate every N iterations
+  checkpoint_frequency: 10000   # Save checkpoint every N iterations
+  log_frequency: 100            # Log metrics every N iterations
+
+# Evaluation configuration
+evaluation:
+  n_episodes: 100               # Episodes for evaluation
+  seeds: [0, 1, 2, 3, 4]        # Random seeds for reproducibility
+  use_action_masking: true      # Respect admissible actions
+
+# Environment configuration
+environment:
+  name: "Sepsis-v0"
+  state_dim: 716
+  action_dim: 25
+  use_one_hot: false
+
+# Dataset configuration
+dataset:
+  buffer_capacity: 1000000
+
+# Logging configuration
+logging:
+  use_wandb: false
+  wandb_project: "cql-sepsis"
+  wandb_entity: null
+  use_tensorboard: true
+  log_dir: "results/logs"
+
+# Reproducibility
+seed: 42
+deterministic: true

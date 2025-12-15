@@ -1,0 +1,35 @@
+name: cql-sepsis
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch>=2.0.0
+  - torchvision
+  - torchaudio
+  - cudatoolkit=11.8
+  - numpy>=1.24.0
+  - pandas>=2.0.0
+  - scikit-learn>=1.3.0
+  - scipy>=1.10.0
+  - matplotlib>=3.7.0
+  - seaborn>=0.12.0
+  - jupyter>=1.0.0
+  - ipython>=8.12.0
+  - ipywidgets>=8.0.0
+  - pytest>=7.3.0
+  - pytest-cov>=4.1.0
+  - black>=23.3.0
+  - flake8>=6.0.0
+  - mypy>=1.3.0
+  - pyyaml>=6.0
+  - tqdm>=4.65.0
+  - pip
+  - pip:
+    - gymnasium>=0.28.0
+    - icu-sepsis>=0.1.0
+    - wandb>=0.15.0
+    - tensorboard>=2.13.0
+    - omegaconf>=2.3.0
+    - plotly>=5.14.0

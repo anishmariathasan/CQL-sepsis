@@ -1,0 +1,54 @@
+# CQL Default Configuration
+# Conservative Q-Learning for Offline RL on ICU-Sepsis
+
+# Algorithm hyperparameters
+algorithm:
+  name: "cql"
+  alpha: 1.0                    # Conservatism coefficient (CQL penalty weight)
+  learning_rate: 3e-4           # Adam learning rate
+  batch_size: 256               # Batch size for SGD
+  gamma: 0.99                   # Discount factor
+  tau: 0.005                    # Soft target update rate
+  hidden_dim: 256               # Q-network hidden dimension
+  num_layers: 2                 # Number of hidden layers
+  activation: "relu"            # Activation function
+  use_double_dqn: true          # Use Double DQN for target computation
+  grad_clip: 1.0                # Gradient clipping norm (null to disable)
+
+# Training configuration
+training:
+  n_iterations: 100000          # Total training iterations (gradient steps)
+  eval_frequency: 5000          # Evaluate every N iterations
+  checkpoint_frequency: 10000   # Save checkpoint every N iterations
+  log_frequency: 100            # Log metrics every N iterations
+  warmup_steps: 0               # Learning rate warmup steps
+
+# Evaluation configuration
+evaluation:
+  n_episodes: 100               # Episodes for evaluation
+  seeds: [0, 1, 2, 3, 4]        # Random seeds for reproducibility
+  use_action_masking: true      # Respect admissible actions
+
+# Environment configuration
+environment:
+  name: "Sepsis-v0"             # Gymnasium environment ID
+  state_dim: 716                # Number of discrete states
+  action_dim: 25                # Number of discrete actions (5x5 grid)
+  use_one_hot: false            # Use one-hot state encoding (false = state index)
+
+# Dataset configuration
+dataset:
+  buffer_capacity: 1000000      # Maximum buffer capacity
+  normalize_rewards: false      # Normalize rewards to [0, 1]
+
+# Logging configuration
+logging:
+  use_wandb: false              # Enable Weights & Biases logging
+  wandb_project: "cql-sepsis"   # W&B project name
+  wandb_entity: null            # W&B entity (username or team)
+  use_tensorboard: true         # Enable TensorBoard logging
+  log_dir: "results/logs"       # Directory for logs
+
+# Reproducibility
+seed: 42                        # Random seed for reproducibility
+deterministic: true             # Use deterministic algorithms where possible

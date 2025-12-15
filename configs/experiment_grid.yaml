@@ -1,0 +1,84 @@
+# Full Experiment Grid Configuration
+# Comprehensive experiments for publication
+
+# Inherit base configuration
+inherit: "configs/cql_default.yaml"
+
+# Experiment grid
+experiments:
+  # Main comparison experiments
+  main_comparison:
+    description: "Compare CQL vs baselines"
+    algorithms:
+      - name: "cql"
+        alpha: 1.0
+      - name: "bc"
+      - name: "dqn"
+      - name: "random"
+    n_seeds: 5
+    seeds: [0, 1, 2, 3, 4]
+    n_iterations: 100000
+
+  # Alpha sensitivity analysis
+  alpha_sensitivity:
+    description: "CQL alpha parameter sweep"
+    algorithm: "cql"
+    alpha_values: [0.0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
+    n_seeds: 5
+    seeds: [0, 1, 2, 3, 4]
+    n_iterations: 50000
+
+  # Data efficiency study
+  data_efficiency:
+    description: "Performance vs dataset size"
+    algorithm: "cql"
+    alpha: 1.0
+    dataset_sizes: [1000, 5000, 10000, 50000, 100000]
+    n_seeds: 3
+    seeds: [0, 1, 2]
+    n_iterations: 50000
+
+  # Network architecture ablation
+  architecture_ablation:
+    description: "Effect of network architecture"
+    algorithm: "cql"
+    alpha: 1.0
+    configurations:
+      - hidden_dim: 64
+        num_layers: 2
+      - hidden_dim: 128
+        num_layers: 2
+      - hidden_dim: 256
+        num_layers: 2
+      - hidden_dim: 256
+        num_layers: 3
+      - hidden_dim: 512
+        num_layers: 2
+    n_seeds: 3
+    seeds: [0, 1, 2]
+    n_iterations: 50000
+
+  # Learning rate sensitivity
+  lr_sensitivity:
+    description: "Learning rate sensitivity"
+    algorithm: "cql"
+    alpha: 1.0
+    learning_rates: [1e-4, 3e-4, 1e-3, 3e-3]
+    n_seeds: 3
+    seeds: [0, 1, 2]
+    n_iterations: 50000
+
+# Output configuration
+output:
+  base_dir: "results/experiments"
+  save_all_checkpoints: false
+  save_final_checkpoint: true
+  generate_figures: true
+  export_csv: true
+  export_json: true
+
+# Resource configuration
+resources:
+  n_parallel_jobs: 4            # Number of parallel training runs
+  device: "auto"                # auto, cuda, cpu
+  mixed_precision: false        # Use FP16 training
