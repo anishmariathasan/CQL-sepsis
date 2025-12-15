@@ -329,7 +329,18 @@ def main():
                     device=args.device,
                 )
                 
-                key = f"{algorithm}_{checkpoint.stem}"
+                # Generate unique key using parent directory and filename
+                # This prevents overwrites when multiple experiments have same checkpoint names
+                parent_dir = checkpoint.parent.parent.name  # e.g., "cql_default"
+                key = f"{parent_dir}_{checkpoint.stem}"
+                
+                # If key still exists, add a counter
+                base_key = key
+                counter = 1
+                while key in all_results:
+                    key = f"{base_key}_{counter}"
+                    counter += 1
+                
                 all_results[key] = results
                 
             except Exception as e:

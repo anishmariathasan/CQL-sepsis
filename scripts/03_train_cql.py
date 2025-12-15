@@ -166,6 +166,16 @@ def merge_configs(base_config: dict, args: argparse.Namespace) -> dict:
     config["algorithm"].setdefault("grad_clip", 1.0)
     config["algorithm"].setdefault("use_double_dqn", True)
     
+    # Ensure numeric types (YAML can sometimes load as strings)
+    config["algorithm"]["alpha"] = float(config["algorithm"]["alpha"])
+    config["algorithm"]["learning_rate"] = float(config["algorithm"]["learning_rate"])
+    config["algorithm"]["batch_size"] = int(config["algorithm"]["batch_size"])
+    config["algorithm"]["hidden_dim"] = int(config["algorithm"]["hidden_dim"])
+    config["algorithm"]["num_layers"] = int(config["algorithm"]["num_layers"])
+    config["algorithm"]["gamma"] = float(config["algorithm"]["gamma"])
+    config["algorithm"]["tau"] = float(config["algorithm"]["tau"])
+    config["algorithm"]["grad_clip"] = float(config["algorithm"]["grad_clip"])
+    
     config["training"].setdefault("n_iterations", 100000)
     config["training"].setdefault("eval_frequency", 5000)
     config["training"].setdefault("checkpoint_frequency", 10000)

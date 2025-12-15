@@ -68,7 +68,7 @@ if (-not $SkipData) {
     Write-Host "Step 2: Collecting Offline Data" -ForegroundColor Cyan
     Write-Host "----------------------------------------"
     
-    python scripts/02_collect_offline_data.py --n_episodes $DATA_EPISODES --output_dir data/offline_datasets
+    python scripts/02_collect_offline_data.py --n_episodes $DATA_EPISODES --save_path data/offline_datasets/behavior_policy.pkl --verbose
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Data collection failed!" -ForegroundColor Red
         exit 1

@@ -322,11 +322,17 @@ def create_sepsis_env(
         >>> print(f"State: {state}, Admissible actions: {env.get_admissible_actions()}")
     """
     try:
-        # Try to create the real ICU-Sepsis environment
+        # Create the real ICU-Sepsis environment directly
         import icu_sepsis
-        base_env = gym.make("Sepsis-v0", **kwargs)
-        logger.info("Created ICU-Sepsis environment")
-    except (ImportError, gym.error.Error) as e:
+        base_env = icu_sepsis.ICUSepsisEnv()
+        # Flatten action space from MultiDiscrete([5,5]) to Discrete(25)
+        base_env = icu_sepsis.FlattenActionWrapper(base_env)
+        logger.info("Created ICU-Sepsis environment with FlattenActionWrapper")
+    except ImportError as e:
+        logger.warning(f"Could not import icu_sepsis: {e}")
+        logger.warning("Using mock environment for testing")
+        base_env = MockSepsisEnv()
+    except Exception as e:
         logger.warning(f"Could not create ICU-Sepsis environment: {e}")
         logger.warning("Using mock environment for testing")
         base_env = MockSepsisEnv()
@@ -338,61 +344,181 @@ def create_sepsis_env(
     )
 
 
-class MockSepsisEnv:
+class MockSepsisEnv(gym.Env):
     """
     Mock ICU-Sepsis environment for testing when real env is unavailable.
     
-    Simulates the basic structure of the ICU-Sepsis environment.
+    Simulates the basic structure of the ICU-Sepsis environment with
+    meaningful dynamics where actions affect outcomes.
+    
+    State representation (simplified):
+        - States 0-179: Low severity (better prognosis)
+        - States 180-537: Medium severity 
+        - States 538-715: High severity (worse prognosis)
+    
+    Action effects:
+        - Moderate vasopressors (levels 1-2) and IV fluids (levels 1-3) are generally beneficial
+        - Extreme actions (none or very high) can be harmful
+        - Optimal treatment depends on patient severity
     """
     
+    metadata = {"render_modes": ["human"]}
+    
     def __init__(self):
-        self.observation_space = type(
-            'DiscreteSpace', (), {'n': N_STATES}
-        )()
-        self.action_space = type(
-            'DiscreteSpace', (),
-            {'n': N_ACTIONS, 'sample': lambda s=self: np.random.randint(0, N_ACTIONS)}
-        )()
+        super().__init__()
+        self.observation_space = gym.spaces.Discrete(N_STATES)
+        self.action_space = gym.spaces.Discrete(N_ACTIONS)
         
         self.state = 0
         self.step_count = 0
         self.max_steps = 20
+        self._np_random = None
+        self._severity = 0  # 0=low, 1=medium, 2=high
+        self._patient_health = 1.0  # Track patient health trajectory
+    
+    def _get_severity(self, state):
+        """Get severity level from state."""
+        if state < 180:
+            return 0  # Low severity
+        elif state < 538:
+            return 1  # Medium severity
+        else:
+            return 2  # High severity
+    
+    def _action_effect(self, action, severity):
+        """
+        Compute the effect of an action given patient severity.
+        
+        Returns a value in [-0.3, 0.3] indicating health change.
+        Positive = health improves, Negative = health worsens.
+        """
+        vaso_level = action // 5  # 0-4
+        fluid_level = action % 5  # 0-4
+        
+        effect = 0.0
+        
+        # Optimal treatment varies by severity
+        if severity == 0:  # Low severity - minimal intervention is best
+            # Ideal: low vasopressors (0-1), moderate fluids (1-2)
+            if vaso_level <= 1 and 1 <= fluid_level <= 2:
+                effect = 0.15
+            elif vaso_level >= 3:  # Too much vasopressor is bad
+                effect = -0.2
+            elif fluid_level >= 4:  # Too much fluid is bad
+                effect = -0.15
+            else:
+                effect = 0.05
+                
+        elif severity == 1:  # Medium severity - balanced treatment
+            # Ideal: moderate vasopressors (1-2), moderate fluids (1-3)
+            if 1 <= vaso_level <= 2 and 1 <= fluid_level <= 3:
+                effect = 0.2
+            elif vaso_level == 0 and fluid_level == 0:  # No treatment is bad
+                effect = -0.25
+            elif vaso_level >= 4 or fluid_level >= 4:  # Too aggressive
+                effect = -0.1
+            else:
+                effect = 0.0
+                
+        else:  # High severity - aggressive treatment needed
+            # Ideal: higher vasopressors (2-3), higher fluids (2-4)
+            if 2 <= vaso_level <= 3 and 2 <= fluid_level <= 4:
+                effect = 0.25
+            elif vaso_level <= 1 and fluid_level <= 1:  # Too conservative
+                effect = -0.3
+            elif vaso_level == 4 and fluid_level == 4:  # Max everything - risky
+                effect = -0.1 + 0.15 * np.random.random()  # High variance
+            else:
+                effect = 0.05
+        
+        # Add some stochasticity
+        effect += np.random.normal(0, 0.05)
+        
+        return np.clip(effect, -0.3, 0.3)
     
     def reset(self, seed=None, options=None):
+        super().reset(seed=seed)
         if seed is not None:
             np.random.seed(seed)
         
         self.state = np.random.randint(0, N_STATES)
         self.step_count = 0
+        self._severity = self._get_severity(self.state)
+        self._patient_health = 0.5 + 0.3 * np.random.random()  # Start between 0.5-0.8
+        
+        # Lower severity patients start healthier
+        if self._severity == 0:
+            self._patient_health += 0.15
+        elif self._severity == 2:
+            self._patient_health -= 0.15
         
         return self.state, {}
     
     def step(self, action):
         self.step_count += 1
         
-        # Transition to random next state
-        next_state = np.random.randint(0, N_STATES)
+        # Compute action effect on health
+        health_change = self._action_effect(action, self._severity)
+        self._patient_health = np.clip(self._patient_health + health_change, 0.0, 1.0)
         
-        # Episode ends stochastically or at max steps
-        terminated = (
-            np.random.random() < 0.1 or
-            self.step_count >= self.max_steps
-        )
+        # Transition to next state (correlated with current state and health)
+        if self._patient_health > 0.6:
+            # Improving - tend toward lower severity states
+            next_state = max(0, self.state - np.random.randint(0, 50))
+        elif self._patient_health < 0.3:
+            # Worsening - tend toward higher severity states  
+            next_state = min(N_STATES - 1, self.state + np.random.randint(0, 100))
+        else:
+            # Stable - stay in similar range
+            next_state = np.clip(
+                self.state + np.random.randint(-30, 30), 
+                0, N_STATES - 1
+            )
         
-        # Reward: +1 for survival (70% chance if episode ends)
+        # Update severity based on new state
+        self._severity = self._get_severity(next_state)
+        
+        # Episode termination
+        # - Ends if health drops too low (death) or gets high enough (recovery)
+        # - Or at max steps
+        terminated = False
         reward = 0.0
-        if terminated:
-            reward = 1.0 if np.random.random() > 0.3 else 0.0
+        
+        if self._patient_health <= 0.1:
+            # Patient dies
+            terminated = True
+            reward = 0.0
+        elif self._patient_health >= 0.9:
+            # Patient recovers
+            terminated = True
+            reward = 1.0
+        elif self.step_count >= self.max_steps:
+            # Episode timeout - outcome based on final health
+            terminated = True
+            # Probabilistic survival based on health
+            survival_prob = self._patient_health
+            reward = 1.0 if np.random.random() < survival_prob else 0.0
         
         self.state = next_state
         
         return next_state, reward, terminated, False, {}
     
     def get_admissible_actions(self):
-        """Return a random subset of actions as admissible."""
-        # Simulate some actions being inadmissible
-        n_admissible = np.random.randint(10, N_ACTIONS)
-        return sorted(np.random.choice(N_ACTIONS, n_admissible, replace=False).tolist())
+        """
+        Return admissible actions based on patient state.
+        
+        In high severity, more aggressive options are available.
+        In low severity, extreme treatments may not be indicated.
+        """
+        if self._severity == 0:  # Low severity - restrict aggressive treatments
+            # Exclude very high vasopressors (level 4)
+            admissible = [a for a in range(N_ACTIONS) if a // 5 < 4]
+        elif self._severity == 2:  # High severity - all treatments available
+            admissible = list(range(N_ACTIONS))
+        else:  # Medium - most treatments available
+            admissible = list(range(N_ACTIONS))
+        
+        return admissible
     
     def render(self):
         pass

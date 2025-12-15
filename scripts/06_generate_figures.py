@@ -32,14 +32,13 @@ matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
 
 from src.utils.plotting import (
-    plot_training_curves,
-    plot_alpha_comparison,
-    plot_action_distribution,
-    plot_survival_analysis,
-    plot_q_value_distribution,
-    plot_state_value_heatmap,
-    plot_policy_comparison_table,
-    create_results_table,
+    plot_learning_curves,
+    plot_alpha_sensitivity,
+    plot_action_distributions,
+    plot_survival_rate_comparison,
+    plot_q_value_heatmap,
+    plot_data_efficiency,
+    plot_safety_analysis,
     set_publication_style,
 )
 from src.utils.logging import setup_logging
