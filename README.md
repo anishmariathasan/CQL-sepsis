@@ -4,10 +4,6 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Reinforcement Learning Coursework - Imperial College London
-
-**Author:** Anish Mariathasan
-
 ## Overview
 
 This repository implements **Conservative Q-Learning (CQL)** for offline reinforcement learning applied to sepsis treatment in the ICU. Using the ICU-Sepsis benchmark environment, we investigate whether offline RL can learn effective treatment policies from historical data without requiring risky online environment interaction.
