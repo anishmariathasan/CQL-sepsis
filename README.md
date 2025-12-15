@@ -27,7 +27,7 @@ CQL-sepsis/
 ├── src/                               # Source code
 │   ├── algorithms/
 │   │   ├── cql.py                    # Conservative Q-Learning
-│   │   ├── bc.py                     # Behavior Cloning baseline
+│   │   ├── bc.py                     # Behaviour Cloning baseline
 │   │   └── dqn.py                    # DQN baseline
 │   ├── environments/
 │   │   └── icu_sepsis_wrapper.py     # Environment wrapper
@@ -37,7 +37,7 @@ CQL-sepsis/
 │   └── utils/
 │       ├── logging.py                # Experiment logging
 │       ├── evaluation.py             # Policy evaluation
-│       └── plotting.py               # Visualization
+│       └── plotting.py               # Visualisation
 │
 ├── configs/                           # YAML configuration files
 │   ├── cql_default.yaml
@@ -52,7 +52,8 @@ CQL-sepsis/
 │   ├── 04_train_baselines.py
 │   ├── 05_evaluate_policies.py
 │   ├── 06_generate_figures.py
-│   └── reproduce_all.ps1             # Windows reproduction script
+│   ├── reproduce_all.ps1             # Windows reproduction script
+│   └── reproduce_all.sh              # macOS/Linux reproduction script
 │
 ├── notebooks/                         # Jupyter notebooks
 │   ├── 01_environment_exploration.ipynb
@@ -120,42 +121,46 @@ python scripts/01_install_environment.py
 
 Note: `01_install_environment.py` verifies all dependencies are correctly installed and tests the ICU-Sepsis environment.
 
-### Train CQL
-
-```bash
-# Collect offline dataset
-python scripts/02_collect_offline_data.py --n_episodes 5000 --save_path data/offline_datasets/behavior_policy.pkl
-
-# Train CQL
-python scripts/03_train_cql.py --config configs/cql_default.yaml --dataset data/offline_datasets/behavior_policy.pkl --output_dir results/cql_default
-
-# Evaluate
-python scripts/05_evaluate_policies.py --checkpoint results/cql_default/checkpoints/best_model.pt --n_episodes 100
-```
-
 ### Reproduce All Experiments
 
+To run the complete experimental pipeline (data collection, training, evaluation, and figure generation):
+
+#### Windows (PowerShell)
+
 ```powershell
-# Windows PowerShell (full reproduction)
+# Full reproduction
 .\scripts\reproduce_all.ps1
 
 # Quick test run
 .\scripts\reproduce_all.ps1 -Quick
 ```
 
+#### macOS / Linux (Bash)
+
+```bash
+# Make script executable
+chmod +x scripts/reproduce_all.sh
+
+# Full reproduction
+./scripts/reproduce_all.sh
+
+# Quick test run
+./scripts/reproduce_all.sh --quick
+```
+
 ## Experiments
 
 ### 1. Main Performance Comparison
-Compare CQL against Behavior Cloning, DQN, and random baselines on the ICU-Sepsis benchmark.
+Compare CQL against Behaviour Cloning, DQN, and random baselines on the ICU-Sepsis benchmark.
 
 ### 2. Alpha Sensitivity Analysis
-Sweep over conservatism coefficient alpha in {0.0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0} to analyze the trade-off between conservatism and optimality.
+Sweep over conservatism coefficient alpha in {0.0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0} to analyse the trade-off between conservatism and optimality.
 
 ### 3. Data Efficiency Study
 Evaluate performance with varying dataset sizes.
 
 ### 4. Safety Analysis
-Analyze action distributions, extreme action frequencies, and comparison to clinician baselines.
+Analyse action distributions, extreme action frequencies, and comparison to clinician baselines.
 
 ## Algorithm Details
 
@@ -185,9 +190,9 @@ The ICU-Sepsis environment has 25 discrete actions representing combinations of:
 
 ## References
 
-1. Kumar, A., Zhou, A., Tucker, G., & Levine, S. (2020). Conservative Q-Learning for Offline Reinforcement Learning. *NeurIPS*.
-2. Choudhary, S., et al. (2024). ICU-Sepsis: A Benchmark MDP Built from Real Medical Data. *RLC*.
-3. Komorowski, M., et al. (2018). The Artificial Intelligence Clinician learns optimal treatment strategies for sepsis in intensive care. *Nature Medicine*.
+1. Kumar, A., Zhou, A., Tucker, G., & Levine, S. (2020). Conservative Q-Learning for Offline Reinforcement Learning. *NeurIPS*. — The original CQL algorithm implemented in this project.
+2. Choudhary, S., et al. (2024). ICU-Sepsis: A Benchmark MDP Built from Real Medical Data. *RLC*. — The benchmark environment used for evaluation.
+3. Komorowski, M., et al. (2018). The Artificial Intelligence Clinician learns optimal treatment strategies for sepsis in intensive care. *Nature Medicine*. — Foundational work on RL for sepsis treatment that motivates this project.
 
 ## License
 

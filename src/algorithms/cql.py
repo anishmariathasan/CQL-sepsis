@@ -81,11 +81,11 @@ class QNetwork(nn.Module):
         
         self.network = nn.Sequential(*layers)
         
-        # Initialize weights
-        self._initialize_weights()
+        # Initialise weights
+        self._initialise_weights()
     
-    def _initialize_weights(self):
-        """Initialize network weights using Xavier initialization."""
+    def _initialise_weights(self):
+        """Initialise network weights using Xavier initialisation."""
         for module in self.modules():
             if isinstance(module, nn.Linear):
                 nn.init.xavier_uniform_(module.weight)
@@ -162,7 +162,7 @@ class CQL:
         action_dim: Number of discrete actions
         hidden_dim: Q-network hidden layer dimension
         num_layers: Number of hidden layers in Q-network
-        lr: Learning rate for optimizer
+        lr: Learning rate for optimiser
         alpha: CQL conservatism coefficient (higher = more conservative)
         gamma: Discount factor
         tau: Soft target update rate
@@ -211,7 +211,7 @@ class CQL:
         self.use_one_hot = use_one_hot
         self.grad_clip = grad_clip
         
-        # Initialize Q-networks
+        # Initialise Q-networks
         self.q_network = QNetwork(
             state_dim=state_dim,
             action_dim=action_dim,
@@ -228,13 +228,13 @@ class CQL:
         for param in self.target_network.parameters():
             param.requires_grad = False
         
-        # Optimizer
+        # Optimiser
         self.optimizer = optim.Adam(self.q_network.parameters(), lr=lr)
         
         # Training statistics
         self.training_step = 0
         
-        logger.info(f"Initialized CQL agent on {self.device}")
+        logger.info(f"Initialised CQL agent on {self.device}")
         logger.info(f"  State dim: {state_dim}, Action dim: {action_dim}")
         logger.info(f"  Alpha: {alpha}, Gamma: {gamma}, Tau: {tau}")
         logger.info(f"  Network: {hidden_dim} hidden units, {num_layers} layers")

@@ -94,7 +94,7 @@ class BaseLogger:
         raise NotImplementedError
     
     def finish(self):
-        """Cleanup and finalize logging."""
+        """Cleanup and finalise logging."""
         pass
 
 
@@ -136,7 +136,7 @@ class WandbLogger(BaseLogger):
             import wandb
             self.wandb = wandb
             
-            # Initialize W&B run
+            # Initialise W&B run
             self.run = wandb.init(
                 project=project,
                 name=name,
@@ -148,14 +148,14 @@ class WandbLogger(BaseLogger):
                 reinit=True,
             )
             
-            logger.info(f"Initialized W&B logger: {project}/{name}")
+            logger.info(f"Initialised W&B logger: {project}/{name}")
             
         except ImportError:
             logger.warning("wandb not installed. W&B logging disabled.")
             self.enabled = False
             self.run = None
         except Exception as e:
-            logger.warning(f"Failed to initialize W&B: {e}")
+            logger.warning(f"Failed to initialise W&B: {e}")
             self.enabled = False
             self.run = None
     

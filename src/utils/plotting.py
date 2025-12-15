@@ -1,18 +1,18 @@
 """
 Publication-quality plotting utilities for CQL-Sepsis experiments.
 
-This module provides visualization functions for:
+This module provides visualisation functions for:
 - Learning curves
 - Performance comparisons
 - Hyperparameter sensitivity analysis
 - Action distributions
-- Q-value visualizations
+- Q-value visualisations
 - Safety analysis
 
 All plots follow publication standards with:
 - Clean, minimal styling
 - Appropriate font sizes
-- Color-blind friendly palettes
+- Colour-blind friendly palettes
 - Vector format support (PDF, SVG)
 """
 
@@ -34,7 +34,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-# Color palette (color-blind friendly)
+# Colour palette (colour-blind friendly)
 COLORS = {
     "cql": "#2E86AB",        # Blue
     "bc": "#A23B72",         # Magenta
@@ -400,7 +400,7 @@ def plot_action_distributions(
     """
     Plot action distributions for multiple policies.
     
-    The 25 actions are visualized as a 5x5 grid (vasopressor x IV fluid).
+    The 25 actions are visualised as a 5x5 grid (vasopressor x IV fluid).
     
     Args:
         action_distributions: Dict mapping policy names to action distributions

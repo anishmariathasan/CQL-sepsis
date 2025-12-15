@@ -72,11 +72,11 @@ class PolicyNetwork(nn.Module):
         
         self.network = nn.Sequential(*layers)
         
-        # Initialize weights
-        self._initialize_weights()
+        # Initialise weights
+        self._initialise_weights()
     
-    def _initialize_weights(self):
-        """Initialize network weights."""
+    def _initialise_weights(self):
+        """Initialise network weights."""
         for module in self.modules():
             if isinstance(module, nn.Linear):
                 nn.init.xavier_uniform_(module.weight)
@@ -191,7 +191,7 @@ class BehaviorCloning:
         self.weight_decay = weight_decay
         self.use_one_hot = use_one_hot
         
-        # Initialize policy network
+        # Initialise policy network
         self.policy = PolicyNetwork(
             state_dim=state_dim,
             action_dim=action_dim,
@@ -200,7 +200,7 @@ class BehaviorCloning:
             use_one_hot=use_one_hot,
         ).to(self.device)
         
-        # Optimizer
+        # Optimiser
         self.optimizer = optim.Adam(
             self.policy.parameters(),
             lr=lr,
@@ -210,7 +210,7 @@ class BehaviorCloning:
         # Training statistics
         self.training_step = 0
         
-        logger.info(f"Initialized BehaviorCloning agent on {self.device}")
+        logger.info(f"Initialised BehaviourCloning agent on {self.device}")
     
     def compute_loss(
         self,

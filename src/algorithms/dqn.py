@@ -55,9 +55,9 @@ class QNetwork(nn.Module):
         layers.append(nn.Linear(hidden_dim, action_dim))
         
         self.network = nn.Sequential(*layers)
-        self._initialize_weights()
+        self._initialise_weights()
     
-    def _initialize_weights(self):
+    def _initialise_weights(self):
         for module in self.modules():
             if isinstance(module, nn.Linear):
                 nn.init.xavier_uniform_(module.weight)
@@ -126,7 +126,7 @@ class DQN:
         self.use_one_hot = use_one_hot
         self.grad_clip = grad_clip
         
-        # Initialize networks
+        # Initialise networks
         self.q_network = QNetwork(
             state_dim=state_dim,
             action_dim=action_dim,
@@ -144,7 +144,7 @@ class DQN:
         self.optimizer = optim.Adam(self.q_network.parameters(), lr=lr)
         self.training_step = 0
         
-        logger.info(f"Initialized DQN agent on {self.device}")
+        logger.info(f"Initialised DQN agent on {self.device}")
     
     def compute_loss(
         self,

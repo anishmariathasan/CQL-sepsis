@@ -7,7 +7,7 @@ inherit: "configs/cql_default.yaml"
 # Sweep configuration
 sweep:
   name: "alpha_sensitivity"
-  description: "Sweep over CQL alpha parameter to analyze conservatism trade-off"
+  description: "Sweep over CQL alpha parameter to analyse conservatism trade-off"
   
   # Alpha values to sweep
   alpha_values: [0.0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0]

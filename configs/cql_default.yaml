@@ -39,7 +39,7 @@ environment:
 # Dataset configuration
 dataset:
   buffer_capacity: 1000000      # Maximum buffer capacity
-  normalize_rewards: false      # Normalize rewards to [0, 1]
+  normalize_rewards: false      # Normalise rewards to [0, 1]
 
 # Logging configuration
 logging:
