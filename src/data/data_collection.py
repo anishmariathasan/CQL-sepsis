@@ -37,7 +37,9 @@ def create_behavior_policy(
     Args:
         policy_type: Type of policy:
             - "random": Uniformly random actions
-            - "behavior": Default environment behavior policy
+            - "expert": Real clinician behavior policy from ICU-Sepsis
+            - "behavior": Alias for "expert" (backwards compatibility)
+            - "epsilon_expert": Expert policy with epsilon-greedy exploration
             - "epsilon_greedy": Epsilon-greedy with given base policy
             - "softmax": Softmax policy with temperature
         env: Environment instance
@@ -47,6 +49,17 @@ def create_behavior_policy(
     Returns:
         Policy function that takes (state, admissible_actions) and returns action
     """
+    # Get expert policy from environment if available
+    expert_policy = None
+    try:
+        # Access the underlying ICU-Sepsis environment
+        unwrapped = env.unwrapped if hasattr(env, 'unwrapped') else env
+        if hasattr(unwrapped, 'expert_policy'):
+            expert_policy = unwrapped.expert_policy
+            logger.info("Found expert policy in environment (716 states x 25 actions)")
+    except Exception as e:
+        logger.warning(f"Could not access expert policy: {e}")
+    
     if policy_type == "random":
         def random_policy(state, admissible_actions=None):
             if admissible_actions is not None and len(admissible_actions) > 0:
@@ -54,15 +67,78 @@ def create_behavior_policy(
             return env.action_space.sample()
         return random_policy
     
-    elif policy_type == "behavior":
-        # Use the environment's built-in behavior policy if available
-        def behavior_policy(state, admissible_actions=None):
-            # ICU-Sepsis has an underlying behavior policy
-            # We approximate it with uniform random over admissible actions
+    elif policy_type in ("expert", "behavior"):
+        # Use the real clinician behavior policy from ICU-Sepsis
+        if expert_policy is None:
+            logger.warning("Expert policy not available, falling back to random")
+            def fallback_policy(state, admissible_actions=None):
+                if admissible_actions is not None and len(admissible_actions) > 0:
+                    return np.random.choice(admissible_actions)
+                return env.action_space.sample()
+            return fallback_policy
+        
+        def expert_behavior_policy(state, admissible_actions=None):
+            # Get state index (handle both scalar and array states)
+            state_idx = int(state) if np.isscalar(state) else int(state.item() if hasattr(state, 'item') else state[0])
+            
+            # Get action probabilities from expert policy
+            action_probs = expert_policy[state_idx].copy()
+            
+            # Mask inadmissible actions if provided
             if admissible_actions is not None and len(admissible_actions) > 0:
-                return np.random.choice(admissible_actions)
-            return env.action_space.sample()
-        return behavior_policy
+                mask = np.zeros(len(action_probs))
+                mask[admissible_actions] = 1
+                action_probs = action_probs * mask
+            
+            # Normalise probabilities
+            prob_sum = action_probs.sum()
+            if prob_sum > 0:
+                action_probs = action_probs / prob_sum
+                return np.random.choice(len(action_probs), p=action_probs)
+            else:
+                # Fallback to uniform over admissible actions
+                if admissible_actions is not None and len(admissible_actions) > 0:
+                    return np.random.choice(admissible_actions)
+                return env.action_space.sample()
+        
+        return expert_behavior_policy
+    
+    elif policy_type == "epsilon_expert":
+        # Expert policy with epsilon-greedy exploration
+        if expert_policy is None:
+            logger.warning("Expert policy not available, using random policy")
+            def random_policy(state, admissible_actions=None):
+                if admissible_actions is not None and len(admissible_actions) > 0:
+                    return np.random.choice(admissible_actions)
+                return env.action_space.sample()
+            return random_policy
+        
+        def epsilon_expert_policy(state, admissible_actions=None):
+            # With probability epsilon, take random action
+            if np.random.random() < epsilon:
+                if admissible_actions is not None and len(admissible_actions) > 0:
+                    return np.random.choice(admissible_actions)
+                return env.action_space.sample()
+            
+            # Otherwise, sample from expert policy
+            state_idx = int(state) if np.isscalar(state) else int(state.item() if hasattr(state, 'item') else state[0])
+            action_probs = expert_policy[state_idx].copy()
+            
+            if admissible_actions is not None and len(admissible_actions) > 0:
+                mask = np.zeros(len(action_probs))
+                mask[admissible_actions] = 1
+                action_probs = action_probs * mask
+            
+            prob_sum = action_probs.sum()
+            if prob_sum > 0:
+                action_probs = action_probs / prob_sum
+                return np.random.choice(len(action_probs), p=action_probs)
+            else:
+                if admissible_actions is not None and len(admissible_actions) > 0:
+                    return np.random.choice(admissible_actions)
+                return env.action_space.sample()
+        
+        return epsilon_expert_policy
     
     elif policy_type == "epsilon_greedy":
         base_policy = kwargs.get("base_policy", None)

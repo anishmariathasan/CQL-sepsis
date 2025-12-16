@@ -88,12 +88,14 @@ python scripts/01_install_environment.py
 # =============================================================================
 if [ "$SKIP_DATA" = false ]; then
     echo ""
-    echo -e "${BLUE}Step 2: Collecting Offline Data${NC}"
+    echo -e "${BLUE}Step 2: Collecting Offline Data (using EXPERT policy)${NC}"
     echo "----------------------------------------"
     
+    # Use the real clinician expert policy for true offline RL
     python scripts/02_collect_offline_data.py \
+        --policy_type expert \
         --n_episodes $DATA_EPISODES \
-        --output_dir data/offline_datasets
+        --save_path data/offline_datasets/behavior_policy.pkl
 else
     echo ""
     echo -e "${YELLOW}Step 2: Skipping data collection (--skip-data)${NC}"

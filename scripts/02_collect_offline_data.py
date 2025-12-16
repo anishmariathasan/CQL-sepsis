@@ -52,9 +52,9 @@ def parse_args():
     parser.add_argument(
         "--policy_type",
         type=str,
-        default="behavior",
-        choices=["random", "behavior", "epsilon_greedy"],
-        help="Type of behavior policy (default: behavior)",
+        default="expert",
+        choices=["random", "expert", "behavior", "epsilon_expert"],
+        help="Type of behavior policy: 'expert' uses real clinician policy, 'random' for uniform (default: expert)",
     )
     parser.add_argument(
         "--epsilon",
