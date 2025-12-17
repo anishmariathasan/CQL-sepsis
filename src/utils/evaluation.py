@@ -261,7 +261,7 @@ def compute_off_policy_estimates(
     Implements several OPE methods:
     - Direct Method (DM): Use Q-function estimates
     - Importance Sampling (IS): Weight returns by policy ratio
-    - Weighted Importance Sampling (WIS): Normalized IS
+    - Weighted Importance Sampling (WIS): Normalised IS
     - Doubly Robust (DR): Combine DM and IS
     
     Args:
@@ -324,7 +324,7 @@ def compute_off_policy_estimates(
     # IS estimate (per-step)
     is_estimate = float(np.mean(importance_weights * rewards))
     
-    # Weighted IS (self-normalized)
+    # Weighted IS (self-normalised)
     wis_estimate = float(np.sum(importance_weights * rewards) / np.sum(importance_weights))
     
     results = {

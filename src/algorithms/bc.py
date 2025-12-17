@@ -200,7 +200,7 @@ class BehaviorCloning:
             use_one_hot=use_one_hot,
         ).to(self.device)
         
-        # Optimiser
+        #used optimiser as standard adam
         self.optimizer = optim.Adam(
             self.policy.parameters(),
             lr=lr,

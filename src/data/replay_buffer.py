@@ -370,8 +370,8 @@ class OfflineReplayBuffer:
 class EpisodeBuffer:
     """
     Buffer that stores complete episodes for analysis.
-    
-    Useful for computing episode-level statistics and visualizations.
+
+    Useful for computing episode-level statistics and visualisations.
     """
     
     def __init__(self):

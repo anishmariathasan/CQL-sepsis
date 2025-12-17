@@ -106,7 +106,7 @@ class WandbLogger(BaseLogger):
         - Automatic metric logging
         - Hyperparameter tracking
         - Model checkpoint saving
-        - Visualization dashboards
+        - Visualisation dashboards
     
     Args:
         project: W&B project name
@@ -221,7 +221,7 @@ class TensorBoardLogger(BaseLogger):
         - Scalar metric logging
         - Histogram logging
         - Hyperparameter logging
-        - Graph visualization
+        - Graph visualisation
     
     Args:
         log_dir: Directory for TensorBoard logs

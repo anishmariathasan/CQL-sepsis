@@ -12,9 +12,10 @@ Usage:
     python scripts/01_install_environment.py
 """
 
+import argparse
+import os
 import subprocess
 import sys
-import os
 
 
 def check_python_version():
@@ -74,9 +75,14 @@ def install_icu_sepsis():
     return True
 
 
-def verify_installation():
-    """Verify the installation by running a simple test"""
+def verify_installation(strict: bool) -> bool:
+    """Verify the installation by running a simple test.
+
+    Returns:
+        True if critical checks pass, otherwise False.
+    """
     print("\nVerifying installation...")
+    ok = True
     
     # Test basic imports
     print("Testing imports...")
@@ -85,6 +91,7 @@ def verify_installation():
         print("  ✓ numpy")
     except ImportError:
         print("  ✗ numpy")
+        ok = False
     
     try:
         import torch
@@ -95,6 +102,7 @@ def verify_installation():
             print("    CUDA not available, will use CPU")
     except ImportError:
         print("  ✗ torch")
+        ok = False
     
     try:
         import gymnasium as gym
@@ -105,6 +113,20 @@ def verify_installation():
             print("  ✓ gym (legacy)")
         except ImportError:
             print("  ✗ gymnasium/gym")
+            ok = False
+
+    # Optional dependencies (do not fail setup)
+    try:
+        import yaml  # noqa: F401
+        print("  ✓ pyyaml")
+    except ImportError:
+        print("  ⚠ pyyaml (optional)")
+
+    try:
+        import omegaconf  # noqa: F401
+        print("  ✓ omegaconf")
+    except ImportError:
+        print("  ⚠ omegaconf (optional)")
     
     try:
         import matplotlib.pyplot as plt
@@ -142,6 +164,8 @@ def verify_installation():
     except Exception as e:
         print(f"  ✗ ICU-Sepsis environment not available: {e}")
         print("    Will use mock environment for development/testing")
+        if strict:
+            ok = False
     
     # Test project imports
     print("\nTesting project imports...")
@@ -162,6 +186,24 @@ def verify_installation():
         
     except Exception as e:
         print(f"  ✗ Project imports failed: {e}")
+        ok = False
+
+    return ok
+
+
+def run_tests() -> bool:
+    """Run the unit tests (pytest) if available."""
+    print("\nRunning unit tests (pytest)...")
+    try:
+        result = subprocess.run([sys.executable, "-m", "pytest", "-q"], check=False)
+        if result.returncode == 0:
+            print("  ✓ Tests passed")
+            return True
+        print(f"  ✗ Tests failed (exit code {result.returncode})")
+        return False
+    except Exception as e:
+        print(f"  ✗ Unable to run tests: {e}")
+        return False
 
 
 def create_directories():
@@ -187,6 +229,21 @@ def create_directories():
 
 def main():
     """Main installation routine"""
+    parser = argparse.ArgumentParser(description="Install and verify CQL-Sepsis environment")
+    parser.add_argument(
+        "--non-strict",
+        action="store_true",
+        help="Do not fail if ICU-Sepsis is unavailable (allows mock environment)",
+    )
+    parser.add_argument(
+        "--run-tests",
+        action="store_true",
+        help="Run pytest after import checks",
+    )
+    args = parser.parse_args()
+
+    strict = not args.non_strict
+
     print("=" * 60)
     print("CQL-Sepsis Environment Setup")
     print("=" * 60)
@@ -195,15 +252,24 @@ def main():
     install_requirements()
     install_icu_sepsis()
     create_directories()
-    verify_installation()
+
+    ok = verify_installation(strict=strict)
+    if args.run_tests:
+        ok = ok and run_tests()
     
     print("\n" + "=" * 60)
-    print("Setup complete!")
+    if ok:
+        print("Setup complete!")
+    else:
+        print("Setup completed with errors.")
     print("=" * 60)
     print("\nNext steps:")
     print("  1. Collect offline data: python scripts/02_collect_offline_data.py")
     print("  2. Train CQL: python scripts/03_train_cql.py")
     print("  3. Evaluate: python scripts/05_evaluate_policies.py")
+
+    if not ok:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -140,7 +140,7 @@ To run the complete experimental pipeline (data collection → training → eval
 bash scripts/reproduce_all.sh
 ```
 
-The full pipeline took approximately **4-5 hours** on my machine (i7-11370H, NVIDIA GeForce RTX 3050 Ti Laptop GPU) and will:
+The full pipeline took approximately **4-5 hours** on my machine (i7-11370H, NVIDIA RTX 3050 Ti Laptop GPU) and will:
 1. Collect offline data using the ICU-Sepsis expert policy (~50,000 transitions)
 2. Train CQL with α ∈ {0.0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0} across 3 seeds
 3. Train BC and DQN baselines across 3 seeds

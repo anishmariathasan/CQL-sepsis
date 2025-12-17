@@ -143,7 +143,7 @@ class CQL:
     """
     Conservative Q-Learning for Offline Reinforcement Learning.
     
-    CQL adds a conservative regularizer to standard Q-learning to prevent
+    CQL adds a conservative regulariser to standard Q-learning to prevent
     overestimation of Q-values for out-of-distribution (OOD) actions. The
     key insight is to learn a Q-function that lower-bounds the true Q-function
     for OOD actions while being accurate for in-distribution actions.
@@ -162,7 +162,7 @@ class CQL:
         action_dim: Number of discrete actions
         hidden_dim: Q-network hidden layer dimension
         num_layers: Number of hidden layers in Q-network
-        lr: Learning rate for optimiser
+        lr: Learning rate for optimizer
         alpha: CQL conservatism coefficient (higher = more conservative)
         gamma: Discount factor
         tau: Soft target update rate
@@ -228,7 +228,7 @@ class CQL:
         for param in self.target_network.parameters():
             param.requires_grad = False
         
-        # Optimiser
+        # Optimizer (PyTorch API)
         self.optimizer = optim.Adam(self.q_network.parameters(), lr=lr)
         
         # Training statistics

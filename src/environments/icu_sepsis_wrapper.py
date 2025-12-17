@@ -2,7 +2,7 @@
 Wrapper for the ICU-Sepsis Gymnasium environment.
 
 This module provides a wrapper around the ICU-Sepsis benchmark environment
-with additional utilities for analysis and visualization.
+with additional utilities for analysis and visualisation.
 
 The ICU-Sepsis environment simulates sepsis treatment in the ICU:
 - State space: 716 discrete states (patient physiological conditions)

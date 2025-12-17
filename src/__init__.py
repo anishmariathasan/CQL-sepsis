@@ -6,7 +6,7 @@ This package contains implementations of:
 - Baseline algorithms (Behavior Cloning, DQN)
 - Environment wrappers for ICU-Sepsis
 - Data utilities for offline datasets
-- Evaluation and visualization utilities
+- Evaluation and visualisation utilities
 """
 
 __version__ = "1.0.0"
